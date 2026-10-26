@@ -1,0 +1,22 @@
+site_name: BioRAG-Guard
+site_description: Poisoning defences for biological retrieval corpora.
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - content.code.copy
+nav:
+  - Home: index.md
+  - Quickstart: quickstart.md
+  - The two jobs: two-jobs.md
+  - Layer reference: layers.md
+  - Evaluation: evaluation.md
+  - Adding a corpus: extending.md
+  - Decisions:
+      - Two jobs: decisions/0001-two-jobs.md
+      - Agreement backend: decisions/0002-agreement-backend.md
+      - One hub layer: decisions/0003-one-hub-layer.md
+markdown_extensions:
+  - admonition
+  - tables
+  - pymdownx.superfences

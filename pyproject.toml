@@ -1,0 +1,70 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "biorag-guard"
+version = "0.1.0"
+description = "Poisoning defences for biological retrieval corpora: guard at ingest, guard on demand."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.24",
+    "pandas>=2.0",
+    "pyyaml>=6.0",
+    "typer>=0.9",
+    "rich>=13.0",
+    "jinja2>=3.1",
+]
+
+[project.optional-dependencies]
+scimilarity = ["hnswlib>=0.7", "scipy>=1.10"]
+prodva = ["faiss-cpu>=1.7"]
+service = ["fastapi>=0.110", "uvicorn>=0.27"]
+dev = ["pytest>=7.4", "pytest-cov>=4.1", "ruff>=0.4", "mypy>=1.8", "pyarrow>=14"]
+all = ["biorag-guard[scimilarity,prodva,service,dev]"]
+
+[project.scripts]
+bioguard = "biorag_guard.cli.app:main"
+
+[project.entry-points."biorag_guard.adapters"]
+generic = "biorag_guard.adapters.generic:GenericAdapter"
+scimilarity = "biorag_guard.adapters.scimilarity:SCimilarityAdapter"
+prodva = "biorag_guard.adapters.prodva:ProDVaAdapter"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+biorag_guard = ["report/templates/*.html"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+# vendored upstream code, kept byte-for-byte as a test oracle
+extend-exclude = ["tests/reference"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4", "SIM"]
+ignore = ["B905"]
+
+[tool.ruff.lint.per-file-ignores]
+# typer's documented idiom is a call in the default argument
+"src/biorag_guard/cli/app.py" = ["B008"]
+# `admit` keeps the upstream if-chain: one layer per statement is the point,
+# and collapsing it to a boolean expression would diverge from the original
+"src/biorag_guard/vote/policy.py" = ["SIM103"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+files = ["src"]
+ignore_missing_imports = true
+disallow_untyped_decorators = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["error::DeprecationWarning:biorag_guard.*"]

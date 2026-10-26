@@ -1,0 +1,23 @@
+# Run BioRAG-Guard as a service for an ingest pipeline that is not Python.
+#
+#   docker compose up
+#   curl -X POST localhost:8713/check -H 'content-type: application/json' \
+#        -H "x-bioguard-token: $BIOGUARD_TOKEN" \
+#        -d '{"records":[{"id":"c1","vector":[...],"label":"T cell"}]}'
+
+services:
+  bioguard:
+    image: python:3.11-slim
+    working_dir: /srv
+    volumes:
+      - ./:/srv:ro
+      - /data/scimilarity_model_v1.1:/corpus:ro
+    environment:
+      BIOGUARD_TOKEN: ${BIOGUARD_TOKEN:?set BIOGUARD_TOKEN}
+    command: >
+      bash -c "pip install -q 'biorag-guard[service]' &&
+               bioguard calibrate /corpus --budget 0.05 &&
+               bioguard serve /corpus --host 0.0.0.0 --port 8713
+                 --token $$BIOGUARD_TOKEN"
+    ports:
+      - "8713:8713"

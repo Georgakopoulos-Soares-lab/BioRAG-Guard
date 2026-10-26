@@ -1,0 +1,46 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e '.[dev]'
+      - name: lint
+        run: ruff check src tests
+      - name: types
+        run: mypy
+      - name: tests
+        run: pytest --cov=biorag_guard --cov-report=term-missing
+      - name: the demo must run on a clean checkout
+        run: |
+          timeout 60 bioguard demo
+
+  no-heavy-deps:
+    # `pip install biorag-guard` must work with no torch, no scanpy, no faiss
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -e .
+      - run: python -c "import biorag_guard; print(biorag_guard.__version__)"
+      - run: bioguard explain
+      - run: bioguard demo
