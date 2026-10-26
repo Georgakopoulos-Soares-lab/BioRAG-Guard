@@ -16,6 +16,8 @@ from __future__ import annotations
 
 import numpy as np
 
+from ..core.arrays import Array
+
 #: Floor on ``1 - cos`` in the score scheme. A record copied verbatim can
 #: land at cos = 1.0 in float32, making ``1 / (1 - c)`` infinite, and one
 #: such neighbour would silently decide every vote. The clip is an explicit
@@ -26,7 +28,7 @@ SCORE_EPS = 1e-6
 WEIGHT_SCHEMES = ("uniform", "score", "cosine", "rank", "softmax")
 
 
-def vote_weights(cos: np.ndarray, scheme: str, temp: float = 0.01) -> np.ndarray:
+def vote_weights(cos: Array, scheme: str, temp: float = 0.01) -> Array:
     """Weights for the surviving neighbours of one query.
 
     Args:

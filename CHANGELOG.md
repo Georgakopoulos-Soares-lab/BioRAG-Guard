@@ -10,8 +10,8 @@ First release.
 
 ### Added
 
-* Two jobs: `bioguard check` (guard at ingest) and `bioguard scan`
-  (guard on demand), split along the insert/overwrite threat models.
+* Two modes: `bioguard check` (check at ingest) and `bioguard scan`
+  (scan a stored corpus), split along the insert/overwrite threat models.
 * `bioguard manifest create|verify`, hashing the index and the label
   column separately so an in-place relabel is visible when a checksum over
   the vectors is not.
@@ -29,4 +29,6 @@ First release.
   working without model weights except `recompute`.
 * `bioguard demo`, the whole flow on a synthetic corpus in about a second.
 * `bioguard eval`, replaying the measured attack arms at a fixed budget.
+* `bioguard new-adapter`, scaffolding an adapter stub and the test it has
+  to pass.
 * Service mode (`bioguard serve`) and the `Guard` Python API.

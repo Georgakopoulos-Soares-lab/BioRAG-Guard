@@ -1,11 +1,11 @@
 """``Guard``: the one object the integration contract is written against.
 
-Two jobs, matching the two threat models:
+Two modes, matching the two threat models:
 
-* :meth:`Guard.check` -- guard at ingest. Record-local and corpus-relative
+* :meth:`Guard.check` -- check at ingest. Record-local and corpus-relative
   layers only, because a hub is invisible until you sweep and an in-place
   edit never passes an ingest gate at all.
-* :meth:`Guard.scan` -- guard on demand. Everything, including the
+* :meth:`Guard.scan` -- scan a stored corpus. Everything, including the
   manifest comparison that catches the attack no vote-time layer touches.
 
 And a third surface, :meth:`Guard.vote`, because ``donor_cap``, ``weight``
@@ -30,6 +30,7 @@ import numpy as np
 from . import __version__
 from .adapters import CorpusAdapter, open_corpus, sniff_all
 from .calibrate import calibrate_layers, clean_cost, sample_split
+from .core.arrays import Array
 from .core.baseline import Baseline
 from .core.config import GuardConfig, LayerConfig, default_layers_for
 from .core.errors import CorpusAlreadyContainsBatch, MissingEvidence, Quarantined
@@ -114,9 +115,9 @@ class Guard:
         return default_layers_for(self.adapter.modality)
 
     def _build(
-        self, job: str, require_threshold: bool = True
+        self, mode: str, require_threshold: bool = True
     ) -> tuple[list[Layer], list[Skipped]]:
-        """Instantiate the layers this job can run, and say why the rest cannot.
+        """Instantiate the layers this mode can run, and say why the rest cannot.
 
         ``require_threshold`` is False only during calibration, which is
         what produces the thresholds in the first place: there a budgeted
@@ -124,7 +125,7 @@ class Guard:
         """
         allowed: set[Scope] = (
             {Scope.RECORD_LOCAL, Scope.CORPUS_RELATIVE}
-            if job == "check"
+            if mode == "check"
             else {Scope.RECORD_LOCAL, Scope.CORPUS_RELATIVE, Scope.CORPUS_WIDE}
         )
         built: list[Layer] = []
@@ -158,7 +159,7 @@ class Guard:
                     f"({', '.join(a.value for a in self.config.access)})",
                 ))
                 continue
-            if job == "check" and Access.INSERT not in spec.access:
+            if mode == "check" and Access.INSERT not in spec.access:
                 skipped.append(Skipped(
                     name, "applies to records already in the corpus; run `bioguard scan`"
                 ))
@@ -219,7 +220,7 @@ class Guard:
             )
         return findings
 
-    # -- job 1: guard at ingest -----------------------------------------------
+    # -- mode 1: check at ingest -----------------------------------------------
 
     def check(self, records: Record | Iterable[Record]) -> RecordResult | Report:
         """Screen one record or a batch. One record in, one result out."""
@@ -275,7 +276,7 @@ class Guard:
         )
         return report
 
-    # -- job 2: guard on demand ------------------------------------------------
+    # -- mode 2: scan a stored corpus ------------------------------------------------
 
     def scan(
         self, sample: int | None = -1, since: str | datetime | None = None,
@@ -315,9 +316,9 @@ class Guard:
         report.provenance["sample"] = len(records)
         return report
 
-    # -- job 3: the defended vote ------------------------------------------------
+    # -- surface 3: the defended vote ------------------------------------------------
 
-    def vote(self, query: np.ndarray, k: int | None = None) -> VoteResult:
+    def vote(self, query: Array, k: int | None = None) -> VoteResult:
         """Answer one query under the configured vote policy."""
         if self.adapter.vectors is None or self.adapter.labels is None:
             raise MissingEvidence("this corpus has no labels, so there is nothing to vote on")

@@ -102,7 +102,7 @@ def test_genuine_records_stay_within_budget(built):
 # -- population layers -------------------------------------------------------
 
 def test_hub_is_invisible_at_ingest_and_visible_in_a_scan(tmp_path):
-    """The structural claim behind having two jobs at all."""
+    """The structural claim behind having two modes at all."""
     corpus = demo.build(tmp_path / "c", n_per_type=90)
     guard = Guard.auto(corpus.path)
     guard.calibrate(budget=0.05)

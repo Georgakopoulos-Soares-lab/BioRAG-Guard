@@ -1,4 +1,4 @@
-# Quickstart
+# ⚡ Quickstart
 
 ## See it work, with no data
 
@@ -14,12 +14,16 @@ no downloads, no model weights.
 
 ## Your own corpus
 
+### 1. `init` — detect the layout
+
 ```bash
 bioguard init /data/scimilarity_model_v1.1
 ```
 
-Detects the layout, reports what the corpus carries, and writes a
-commented `bioguard.yaml` you do not have to edit.
+Reports what the corpus carries and writes a commented `bioguard.yaml`
+you do not have to edit.
+
+### 2. 📋 `manifest create` — snapshot it while you trust it
 
 ```bash
 bioguard manifest create /data/scimilarity_model_v1.1
@@ -27,8 +31,13 @@ bioguard manifest create /data/scimilarity_model_v1.1
 
 Hashes the vectors and the label column **separately**, and keeps the
 label column beside the manifest so a later relabel can be named record by
-record. Do this first: it is the only thing that catches an in-place edit,
-and it is the cheapest check in the tool.
+record.
+
+Do this first. It is the only thing that catches an in-place edit, it is
+the cheapest check in the tool, and a comparison taken after the edit has
+already baked the edit in.
+
+### 3. `calibrate` — learn what normal looks like here
 
 ```bash
 bioguard calibrate /data/scimilarity_model_v1.1 --budget 0.05
@@ -39,11 +48,13 @@ records, then measures what the policy cost on clean data and prints both.
 If the corpus is already poisoned the baseline absorbs the poison; the
 command says so, and `--baseline-from` lets you fit on a trusted subset.
 
+### 4. 🔍 `scan` — audit the whole corpus
+
 ```bash
 bioguard scan /data/scimilarity_model_v1.1
 ```
 
-## Screening submissions
+## 📥 Screening submissions
 
 ```bash
 bioguard check new_study/ --corpus /data/scimilarity_model_v1.1
@@ -58,7 +69,7 @@ indexed, copies of one poisoned record corroborate each other. The tool
 refuses a batch it finds already present rather than reporting a quietly
 weakened score.
 
-## In Python
+## 🐍 The same thing in Python
 
 ```python
 from biorag_guard import Guard, Verdict
@@ -72,7 +83,9 @@ else:
     print(result.verdict, result.reasons)
 ```
 
-## What to do with a finding
+Over HTTP, for non-Python pipelines: `bioguard serve`.
+
+## 🩺 What to do with a finding
 
 Every finding carries a `reason` written for a bench scientist and a
 `remedy` saying what to do. Start with the report's own grouping: a single

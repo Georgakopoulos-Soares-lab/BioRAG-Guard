@@ -3,7 +3,7 @@
 The research measured that over a 7,913,892-record reference an index
 hash does not detect an in-place relabel while a label hash does. These
 tests assert that property of the implementation directly, because it is
-the single claim the tool's second job rests on.
+the single claim the tool's second mode rests on.
 """
 
 from __future__ import annotations

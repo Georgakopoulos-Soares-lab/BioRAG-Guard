@@ -1,6 +1,6 @@
-# The two jobs
+# The two modes
 
-## Why they are different
+## 🎯 Why they are different
 
 They answer different threat models, which the research names and keeps
 apart:
@@ -13,7 +13,7 @@ apart:
 The defences barely overlap, which is why this is two commands and not
 one with a flag.
 
-## Guard at ingest &mdash; `bioguard check`
+## 📥 Check at ingest &mdash; `bioguard check`
 
 Runs record-local and corpus-relative layers on an arriving batch, scored
 against the corpus as it stood before the batch.
@@ -38,7 +38,7 @@ duplicate/relabel, 0.742 for flood, 0.025 for interpolate. These are
 vote-time filters; they change the answer, not what is retrieved. The
 report keeps the two columns separate for that reason.
 
-## Guard on demand &mdash; `bioguard scan`
+## 🔍 Scan a stored corpus &mdash; `bioguard scan`
 
 Adds the layers that need the whole corpus, and the manifest comparison.
 
@@ -58,18 +58,18 @@ label rewritten with the embedding untouched:
 
 Nothing works, and the donor cap makes it worse. This null is reported
 with the same weight as the positive results because it is what justifies
-the second job.
+the second mode.
 
 What does work is arithmetic over the label column. Over a 7,913,892-record
 reference:
 
 | check | detects a relabel in place | wall time |
 |---|---|---|
-| hash of the index | **no** | 1.37 s |
-| hash of the label column | yes | 0.10 s |
-| element-wise label diff | yes | 0.31 s |
+| hash of the index | ❌ **no** | 1.37 s |
+| hash of the label column | ✅ yes | 0.10 s |
+| element-wise label diff | ✅ yes | 0.31 s |
 
-## The third surface &mdash; `guard.vote`
+## 🗳️ The third surface &mdash; `guard.vote`
 
 `donor_cap`, `weight`, `abstain` and the seasoning window have no
 ingest-time form: they change how a retrieved neighbourhood becomes an

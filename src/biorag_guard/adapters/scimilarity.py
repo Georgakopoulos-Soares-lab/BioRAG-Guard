@@ -33,6 +33,7 @@ from typing import Any
 
 import numpy as np
 
+from ..core.arrays import Array
 from ..core.finding import Finding
 from ..core.record import Record, Severity, Verdict
 from .base import CorpusAdapter, exact_neighbors, normalise
@@ -57,9 +58,9 @@ class SCimilarityAdapter(CorpusAdapter):
 
     def __init__(self) -> None:
         super().__init__()
-        self._vectors: np.ndarray | None = None
+        self._vectors: Array | None = None
         self._meta: Any = None
-        self._ids: np.ndarray | None = None
+        self._ids: Array | None = None
         self._label_column: str | None = None
         self._donor_column: str | None = None
         self._knn: Any = None
@@ -155,31 +156,31 @@ class SCimilarityAdapter(CorpusAdapter):
     # -- columns -----------------------------------------------------------
 
     @property
-    def ids(self) -> np.ndarray:
+    def ids(self) -> Array:
         if self._ids is not None:
             return self._ids
         n = 0 if self._vectors is None else len(self._vectors)
         return np.array([str(i) for i in range(n)], dtype=object)
 
     @property
-    def vectors(self) -> np.ndarray | None:
+    def vectors(self) -> Array | None:
         return self._vectors
 
     @property
-    def labels(self) -> np.ndarray | None:
+    def labels(self) -> Array | None:
         if self._meta is None or self._label_column is None:
             return None
         return np.asarray(self._meta[self._label_column], dtype=object)
 
     @property
-    def donors(self) -> np.ndarray | None:
+    def donors(self) -> Array | None:
         if self._meta is None or self._donor_column is None:
             return None
         return np.asarray(self._meta[self._donor_column], dtype=object)
 
     # -- search ---------------------------------------------------------------
 
-    def neighbors(self, vectors: np.ndarray, k: int) -> tuple[np.ndarray, np.ndarray]:
+    def neighbors(self, vectors: Array, k: int) -> tuple[Array, Array]:
         if self._knn is None:
             return exact_neighbors(np.asarray(vectors), np.asarray(self._vectors), k)
         q = np.asarray(vectors, dtype=np.float32)
@@ -191,7 +192,7 @@ class SCimilarityAdapter(CorpusAdapter):
         # hnswlib 'cosine' space returns 1 - cos
         return np.asarray(idx, dtype=np.int64), 1.0 - np.asarray(dist, dtype=np.float64)
 
-    def recompute(self, records: Sequence[Record]) -> np.ndarray | None:
+    def recompute(self, records: Sequence[Record]) -> Array | None:
         """Re-encode from counts with the SCimilarity model, if it is installed.
 
         Returns None -- which makes the layer report itself as not

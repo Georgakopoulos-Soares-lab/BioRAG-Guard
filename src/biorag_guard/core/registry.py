@@ -22,6 +22,7 @@ from typing import Any
 
 import numpy as np
 
+from .arrays import Array
 from .errors import MissingEvidence
 from .finding import Finding
 from .record import Access, Record, Scope, Severity, Verdict
@@ -132,11 +133,11 @@ class Layer(ABC):
 
     # -- the two things a layer may implement ---------------------------
 
-    def score(self, records: Sequence[Record], ctx: Context) -> np.ndarray:
+    def score(self, records: Sequence[Record], ctx: Context) -> Array:
         """One score per record. Budgeted layers implement this."""
         raise NotImplementedError
 
-    def fires(self, scores: np.ndarray) -> np.ndarray:
+    def fires(self, scores: Array) -> Array:
         """Which scores are on the suspicious side of the threshold."""
         if self.spec.direction is Direction.LOW_IS_SUSPICIOUS:
             return scores < self.threshold

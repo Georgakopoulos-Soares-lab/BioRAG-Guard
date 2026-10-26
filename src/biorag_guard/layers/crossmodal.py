@@ -24,6 +24,7 @@ from typing import Any, Protocol, runtime_checkable
 
 import numpy as np
 
+from ..core.arrays import Array
 from ..core.finding import Finding
 from ..core.record import Access, Record, Scope, Severity, Verdict
 from ..core.registry import Context, Direction, Layer, LayerSpec, register_layer
@@ -39,7 +40,7 @@ class AgreementBackend(Protocol):
     def available(self, records: Sequence[Record]) -> bool:
         """Can this backend score these records at all?"""
 
-    def score(self, records: Sequence[Record]) -> np.ndarray:
+    def score(self, records: Sequence[Record]) -> Array:
         """(n,) agreement in [0, 1]; higher means description and payload agree."""
 
 
@@ -60,7 +61,7 @@ class TermOverlapBackend:
             r.features and r.features.get("annotation_terms") for r in records
         )
 
-    def score(self, records: Sequence[Record]) -> np.ndarray:
+    def score(self, records: Sequence[Record]) -> Array:
         out = np.ones(len(records))
         for i, rec in enumerate(records):
             terms = {t.lower() for t in rec.features.get("annotation_terms", [])}
@@ -113,7 +114,7 @@ class CrossModalAgreement(Layer):
                 f"no agreement backend named {name!r}; registered: {sorted(BACKENDS)}"
             ) from None
 
-    def score(self, records: Sequence[Record], ctx: Context) -> np.ndarray:
+    def score(self, records: Sequence[Record], ctx: Context) -> Array:
         backend = self._backend()
         if not backend.available(records):
             raise NotImplementedError(

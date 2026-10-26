@@ -19,6 +19,7 @@ from typing import Any
 
 import numpy as np
 
+from ..core.arrays import Array
 from ..core.record import Access, Record, Scope, Severity, Verdict
 from ..core.registry import Context, Direction, Layer, LayerSpec, register_layer
 
@@ -72,7 +73,7 @@ class TextNearDuplicate(Layer):
         default_params={"candidates": 200},
     )
 
-    def score(self, records: Sequence[Record], ctx: Context) -> np.ndarray:
+    def score(self, records: Sequence[Record], ctx: Context) -> Array:
         adapter = ctx.adapter
         corpus_text = getattr(adapter, "texts", None) if adapter is not None else None
         if corpus_text is None:
@@ -131,7 +132,7 @@ class TextInstruction(Layer):
     def __init__(self, threshold: float | None = None, **kw: Any) -> None:
         super().__init__(threshold if threshold is not None else 0.5, **kw)
 
-    def score(self, records: Sequence[Record], ctx: Context) -> np.ndarray:
+    def score(self, records: Sequence[Record], ctx: Context) -> Array:
         return np.array([float(len(self._hits(r.text or ""))) for r in records])
 
     @staticmethod
@@ -191,7 +192,7 @@ class TextFluency(Layer):
             ctx.cache["unigram"] = (counter, max(sum(counter.values()), 1))
         return ctx.cache["unigram"]  # type: ignore[no-any-return]
 
-    def score(self, records: Sequence[Record], ctx: Context) -> np.ndarray:
+    def score(self, records: Sequence[Record], ctx: Context) -> Array:
         counter, total = self._model(ctx)
         vocab = len(counter) + 1
         out = np.zeros(len(records))
@@ -245,7 +246,7 @@ class FragmentOutlier(Layer):
         lengths = [len(str(f)) for f in frags]
         return float(len(frags)), float(max(lengths))
 
-    def score(self, records: Sequence[Record], ctx: Context) -> np.ndarray:
+    def score(self, records: Sequence[Record], ctx: Context) -> Array:
         table = np.array([self._stats(r) for r in records], dtype=float)
         ref = ctx.cache.get("fragment_reference", table)
         med = np.median(ref, axis=0)

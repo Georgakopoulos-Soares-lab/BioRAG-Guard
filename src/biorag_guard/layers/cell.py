@@ -20,6 +20,7 @@ from typing import Any
 
 import numpy as np
 
+from ..core.arrays import Array
 from ..core.record import Access, Record, Scope, Severity, Verdict
 from ..core.registry import Context, Direction, Layer, LayerSpec, register_layer
 from .scoring import max_similarity, score_records
@@ -54,7 +55,7 @@ class Recompute(Layer):
         default_params={"tolerance": 1e-4},
     )
 
-    def fires(self, scores: np.ndarray) -> np.ndarray:
+    def fires(self, scores: Array) -> Array:
         """Compare against the calibrated threshold or the numerical floor.
 
         On a corpus whose vectors re-derive cleanly, the budget quantile lands
@@ -65,7 +66,7 @@ class Recompute(Layer):
         floor = float(self.params["tolerance"])
         return np.asarray(scores) > max(self.threshold, floor)
 
-    def score(self, records: Sequence[Record], ctx: Context) -> np.ndarray:
+    def score(self, records: Sequence[Record], ctx: Context) -> Array:
         if ctx.adapter is None:
             raise NotImplementedError("recompute needs an adapter that can re-derive vectors")
         redone = ctx.adapter.recompute(records)
@@ -122,7 +123,7 @@ class LabelConsistency(Layer):
         default_params={"k": 50},
     )
 
-    def score(self, records: Sequence[Record], ctx: Context) -> np.ndarray:
+    def score(self, records: Sequence[Record], ctx: Context) -> Array:
         adapter = ctx.adapter
         if adapter is None or adapter.vectors is None or adapter.labels is None:
             raise NotImplementedError(
@@ -205,7 +206,7 @@ class Dedup(Layer):
         default_params={"tau": 0.999},
     )
 
-    def score(self, records: Sequence[Record], ctx: Context) -> np.ndarray:
+    def score(self, records: Sequence[Record], ctx: Context) -> Array:
         adapter = ctx.adapter
         if adapter is None or adapter.vectors is None:
             raise NotImplementedError("dedup needs a reference with vectors")

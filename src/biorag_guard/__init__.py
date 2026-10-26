@@ -1,10 +1,10 @@
-"""BioRAG-Guard: poisoning defences for biological retrieval corpora.
+"""BioRAG-Guard: integrity checks for biological retrieval corpora.
 
-Two jobs, matching the two threat models the research separates:
+Two modes, matching the two threat models the research separates:
 
-* **guard at ingest** (``Guard.check``) -- the attacker can only get records
+* **check at ingest** (``Guard.check``) -- the attacker can only get records
   accepted into the corpus;
-* **guard on demand** (``Guard.scan``) -- the attacker can edit records that
+* **scan a stored corpus** (``Guard.scan``) -- the attacker can edit records that
   are already there.
 
 A third surface, ``Guard.vote``, applies the query-time policy, because

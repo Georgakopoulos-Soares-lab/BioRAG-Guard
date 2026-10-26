@@ -12,7 +12,7 @@ demonstrates that the layers behave as specified and that the harness works.
 It is **not** a replication of the research results. Those were measured on a
 SCimilarity `model_v1.1` reference of 7,913,892 records with GSE136831 lung
 queries, and reproducing them needs that atlas, the query set, and hours of
-compute per arm. The research numbers are quoted in `docs/two-jobs.md` and
+compute per arm. The research numbers are quoted in `docs/two-modes.md` and
 attributed there; they are not reproduced here and must not be read off this
 page.
 

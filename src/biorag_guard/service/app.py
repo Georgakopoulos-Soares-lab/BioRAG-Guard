@@ -1,4 +1,4 @@
-"""``bioguard serve`` -- the same two jobs over HTTP.
+"""``bioguard serve`` -- the same two modes over HTTP.
 
 The schema is generated from the handlers rather than written by hand, so
 it cannot drift from the code. Authentication is a shared-token header,
@@ -84,7 +84,7 @@ def create_app(guard: Guard, token: str | None = None) -> Any:
     app = FastAPI(
         title="BioRAG-Guard",
         version="1.0",
-        description="Guard at ingest, guard on demand.",
+        description="Check at ingest, scan a stored corpus.",
     )
     jobs: dict[str, dict[str, Any]] = {}
 

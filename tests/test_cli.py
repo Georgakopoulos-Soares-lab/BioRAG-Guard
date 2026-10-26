@@ -27,7 +27,7 @@ def test_demo_runs_end_to_end_with_no_data(tmp_path):
     result = run("demo", "--workdir", str(tmp_path / "d"))
     assert result.exit_code == 0, result.output
     for marker in ("building a synthetic corpus", "taking a manifest", "calibrating",
-                   "guarding at ingest", "guarding on demand"):
+                   "checking at ingest", "scanning a stored corpus"):
         assert marker in result.output
     assert "index hash   unchanged" in result.output
     assert "label hash   CHANGED" in result.output
