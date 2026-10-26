@@ -58,6 +58,6 @@ def vote_weights(cos: Array, scheme: str, temp: float = 0.01) -> Array:
     if scheme == "rank":
         return 1.0 / (1.0 + np.arange(len(c)))
     if scheme == "softmax":
-        z = (c - c.max()) / temp
+        z = (c - np.max(c)) / temp
         return np.asarray(np.exp(z), dtype=np.float64)
     raise ValueError(f"unknown weight scheme {scheme!r}; expected one of {WEIGHT_SCHEMES}")
