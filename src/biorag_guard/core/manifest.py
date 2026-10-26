@@ -35,6 +35,8 @@ from typing import Any
 
 import numpy as np
 
+from .arrays import Array
+
 MANIFEST_VERSION = "1.0"
 #: Records per block hash. Localises a change without storing every digest.
 BLOCK = 100_000
@@ -47,7 +49,7 @@ def _digest(chunks: Iterator[bytes]) -> str:
     return h.hexdigest()
 
 
-def hash_array(arr: np.ndarray, block: int = BLOCK) -> tuple[str, list[str]]:
+def hash_array(arr: Array, block: int = BLOCK) -> tuple[str, list[str]]:
     """Whole-array digest plus one digest per block of rows."""
     arr = np.ascontiguousarray(arr)
     blocks: list[str] = []
@@ -60,7 +62,7 @@ def hash_array(arr: np.ndarray, block: int = BLOCK) -> tuple[str, list[str]]:
     return whole.hexdigest(), blocks
 
 
-def hash_strings(values: np.ndarray, block: int = BLOCK) -> tuple[str, list[str]]:
+def hash_strings(values: Array, block: int = BLOCK) -> tuple[str, list[str]]:
     """Digest of a string column, block-wise. Encoding is pinned to UTF-8."""
     vals = np.asarray(values, dtype=object)
     blocks: list[str] = []
@@ -90,8 +92,8 @@ class Manifest:
     version: str = MANIFEST_VERSION
     #: path of the sidecar holding the label column, relative to the json
     labels_file: str | None = None
-    _labels: np.ndarray | None = field(default=None, repr=False, compare=False)
-    _ids: np.ndarray | None = field(default=None, repr=False, compare=False)
+    _labels: Array | None = field(default=None, repr=False, compare=False)
+    _ids: Array | None = field(default=None, repr=False, compare=False)
 
     # -- construction ---------------------------------------------------
 
@@ -100,9 +102,9 @@ class Manifest:
         cls,
         adapter_name: str,
         corpus: str,
-        ids: np.ndarray,
-        vectors: np.ndarray | None = None,
-        labels: np.ndarray | None = None,
+        ids: Array,
+        vectors: Array | None = None,
+        labels: Array | None = None,
         keep_labels: bool = True,
     ) -> Manifest:
         """Hash a corpus. ``keep_labels`` stores the column for element-wise diff."""
@@ -175,11 +177,11 @@ class Manifest:
     # -- comparison -----------------------------------------------------
 
     @property
-    def labels(self) -> np.ndarray | None:
+    def labels(self) -> Array | None:
         return self._labels
 
     @property
-    def ids(self) -> np.ndarray | None:
+    def ids(self) -> Array | None:
         return self._ids
 
 
@@ -316,6 +318,6 @@ def _elementwise_label_diff(
     return ids_out, from_out, to_out
 
 
-def _categorise(values: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+def _categorise(values: Array) -> tuple[Array, Array]:
     cats, codes = np.unique(np.asarray(values, dtype=str), return_inverse=True)
     return codes.astype(np.int32), cats

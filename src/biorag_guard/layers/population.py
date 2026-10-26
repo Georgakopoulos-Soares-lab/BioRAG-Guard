@@ -14,12 +14,13 @@ from typing import Any
 
 import numpy as np
 
+from ..core.arrays import Array
 from ..core.finding import Finding
 from ..core.record import Access, Record, Scope, Severity, Verdict
 from ..core.registry import Context, Direction, Layer, LayerSpec, register_layer
 
 
-def k_occurrence(adapter: Any, n_probes: int, k: int, seed: int) -> np.ndarray:
+def k_occurrence(adapter: Any, n_probes: int, k: int, seed: int) -> Array:
     """How often each corpus record is returned for a probe query.
 
     Hubness is the attack in a similarity-search deployment: being returned
@@ -32,8 +33,8 @@ def k_occurrence(adapter: Any, n_probes: int, k: int, seed: int) -> np.ndarray:
     idx, _ = adapter.neighbors(probes, k)
     counts = np.zeros(len(adapter.ids), dtype=np.int64)
     flat = np.asarray(idx).ravel()
-    flat = flat[flat >= 0]
-    np.add.at(counts, flat, 1)
+    # a short corpus returns fewer than k neighbours, padded with -1
+    np.add.at(counts, flat[flat >= 0], 1)
     return counts
 
 
@@ -62,7 +63,7 @@ class Hub(Layer):
         default_params={"probes": 5000, "k": 50, "seed": 0},
     )
 
-    def _counts(self, ctx: Context) -> np.ndarray:
+    def _counts(self, ctx: Context) -> Array:
         key = f"k_occurrence:{self.params['probes']}:{self.params['k']}:{self.params['seed']}"
         if key not in ctx.cache:
             ctx.cache[key] = k_occurrence(
@@ -71,7 +72,7 @@ class Hub(Layer):
             )
         return ctx.cache[key]  # type: ignore[no-any-return]
 
-    def score(self, records: Sequence[Record], ctx: Context) -> np.ndarray:
+    def score(self, records: Sequence[Record], ctx: Context) -> Array:
         if ctx.adapter is None:
             raise NotImplementedError("hub needs an adapter to probe")
         counts = self._counts(ctx)

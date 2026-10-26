@@ -24,6 +24,7 @@ from typing import Any
 
 import numpy as np
 
+from ..core.arrays import Array
 from ..core.finding import Finding
 from ..core.record import Record, Severity, Verdict
 from .base import CorpusAdapter, normalise
@@ -40,7 +41,7 @@ class GenericAdapter(CorpusAdapter):
 
     def __init__(self) -> None:
         super().__init__()
-        self._vectors: np.ndarray | None = None
+        self._vectors: Array | None = None
         self._rows: list[dict[str, Any]] = []
 
     @classmethod
@@ -73,21 +74,21 @@ class GenericAdapter(CorpusAdapter):
     # -- columns --------------------------------------------------------
 
     @property
-    def ids(self) -> np.ndarray:
+    def ids(self) -> Array:
         return np.array([str(r.get("id", i)) for i, r in enumerate(self._rows)], dtype=object)
 
     @property
-    def vectors(self) -> np.ndarray | None:
+    def vectors(self) -> Array | None:
         return self._vectors
 
     @property
-    def labels(self) -> np.ndarray | None:
+    def labels(self) -> Array | None:
         if not self._rows or not any("label" in r for r in self._rows):
             return None
         return np.array([r.get("label") for r in self._rows], dtype=object)
 
     @property
-    def donors(self) -> np.ndarray | None:
+    def donors(self) -> Array | None:
         if not self._rows or not any("donor" in r for r in self._rows):
             return None
         return np.array([r.get("donor") for r in self._rows], dtype=object)
@@ -122,7 +123,7 @@ class GenericAdapter(CorpusAdapter):
             source=row.get("source"),
         )
 
-    def recompute(self, records: Sequence[Record]) -> np.ndarray | None:
+    def recompute(self, records: Sequence[Record]) -> Array | None:
         """Re-derive vectors from counts, if the corpus carries them.
 
         The generic corpus has no encoder, so the derivation is the

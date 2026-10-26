@@ -25,6 +25,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from ..core.arrays import Array
 from ..core.errors import MissingEvidence
 from .weights import vote_weights
 
@@ -71,7 +72,7 @@ class VotePolicy:
         return "+".join(parts) if parts else "none"
 
 
-def dedup_keep(emb: np.ndarray, tau: float) -> np.ndarray:
+def dedup_keep(emb: Array, tau: float) -> Array:
     """Indices surviving greedy near-duplicate collapse, in rank order.
 
     Walks the neighbourhood from nearest to furthest and keeps a record only
@@ -142,14 +143,14 @@ def admit(
 
 
 def survivors(
-    labels: np.ndarray,
+    labels: Array,
     policy: VotePolicy,
-    recompute_ok: np.ndarray | None = None,
-    label_consistency: np.ndarray | None = None,
-    donor: np.ndarray | None = None,
-    seasoned: np.ndarray | None = None,
-    emb: np.ndarray | None = None,
-) -> np.ndarray:
+    recompute_ok: Array | None = None,
+    label_consistency: Array | None = None,
+    donor: Array | None = None,
+    seasoned: Array | None = None,
+    emb: Array | None = None,
+) -> Array:
     """Indices of one query's neighbours that survive every enabled layer.
 
     Separate from :func:`defended_vote` so a caller can ask what a defence
@@ -192,14 +193,14 @@ def survivors(
 
 
 def defended_vote(
-    labels: np.ndarray,
+    labels: Array,
     policy: VotePolicy,
-    recompute_ok: np.ndarray | None = None,
-    label_consistency: np.ndarray | None = None,
-    donor: np.ndarray | None = None,
-    seasoned: np.ndarray | None = None,
-    cos: np.ndarray | None = None,
-    emb: np.ndarray | None = None,
+    recompute_ok: Array | None = None,
+    label_consistency: Array | None = None,
+    donor: Array | None = None,
+    seasoned: Array | None = None,
+    cos: Array | None = None,
+    emb: Array | None = None,
 ) -> str | None:
     """Filter one query's neighbourhood, then vote over what survives.
 

@@ -29,6 +29,7 @@ from typing import Any
 
 import numpy as np
 
+from ..core.arrays import Array
 from ..core.finding import Finding
 from ..core.record import Record, Severity, Verdict
 from .base import CorpusAdapter, normalise
@@ -56,7 +57,7 @@ class ProDVaAdapter(CorpusAdapter):
         self._data: list[dict[str, Any]] = []
         self._seq_map: list[dict[str, Any]] = []
         self._frag_map: list[dict[str, Any]] = []
-        self._vectors: np.ndarray | None = None
+        self._vectors: Array | None = None
 
     @classmethod
     def sniff(cls, path: Path) -> float:
@@ -90,26 +91,26 @@ class ProDVaAdapter(CorpusAdapter):
     # -- columns -----------------------------------------------------------
 
     @property
-    def ids(self) -> np.ndarray:
+    def ids(self) -> Array:
         return np.array(
             [str(r.get("id", i)) for i, r in enumerate(self._data)], dtype=object
         )
 
     @property
-    def texts(self) -> np.ndarray:
+    def texts(self) -> Array:
         """The descriptions. These are what the index is built from."""
         return np.array([r.get("instruction") for r in self._data], dtype=object)
 
     @property
-    def payloads(self) -> np.ndarray:
+    def payloads(self) -> Array:
         return np.array([r.get("sequence") for r in self._data], dtype=object)
 
     @property
-    def vectors(self) -> np.ndarray | None:
+    def vectors(self) -> Array | None:
         return self._vectors
 
     @property
-    def labels(self) -> np.ndarray | None:
+    def labels(self) -> Array | None:
         return None
 
     def _fragments_for(self, sequence: str | None) -> list[str]:

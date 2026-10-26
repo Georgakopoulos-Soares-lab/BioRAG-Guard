@@ -13,6 +13,7 @@ from typing import Any
 
 import numpy as np
 
+from ..core.arrays import Array
 from ..core.finding import Finding
 from ..core.record import Access, Record, Scope, Severity, Verdict
 from ..core.registry import Context, Direction, Layer, LayerSpec, register_layer
@@ -58,9 +59,9 @@ class QcCounts(Layer):
         default_params={"stats": ("library_size", "detected_fraction")},
     )
 
-    def score(self, records: Sequence[Record], ctx: Context) -> np.ndarray:
+    def score(self, records: Sequence[Record], ctx: Context) -> Array:
         ref = ctx.cache.get("qc_counts:reference")
-        table: np.ndarray = np.array(
+        table: Array = np.array(
             [[count_stats(r.counts)[s] for s in self.params["stats"]] for r in records],
             dtype=np.float64,
         )

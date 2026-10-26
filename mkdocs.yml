@@ -1,5 +1,5 @@
 site_name: BioRAG-Guard
-site_description: Poisoning defences for biological retrieval corpora.
+site_description: Integrity checks for biological retrieval corpora.
 theme:
   name: material
   features:
@@ -8,12 +8,12 @@ theme:
 nav:
   - Home: index.md
   - Quickstart: quickstart.md
-  - The two jobs: two-jobs.md
+  - The two modes: two-modes.md
   - Layer reference: layers.md
   - Evaluation: evaluation.md
   - Adding a corpus: extending.md
   - Decisions:
-      - Two jobs: decisions/0001-two-jobs.md
+      - Two modes: decisions/0001-two-modes.md
       - Agreement backend: decisions/0002-agreement-backend.md
       - One hub layer: decisions/0003-one-hub-layer.md
 markdown_extensions:

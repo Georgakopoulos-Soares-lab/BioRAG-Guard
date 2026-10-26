@@ -1,6 +1,6 @@
 """The manifest layers, through the layer interface the scan actually uses.
 
-These two carry the result the second job exists for, so they are tested
+These two carry the result the second mode exists for, so they are tested
 directly rather than only through the CLI: `manifest_index` must stay
 silent on a relabel, and `manifest_label` must name the records.
 """

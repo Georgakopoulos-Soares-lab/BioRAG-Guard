@@ -25,6 +25,7 @@ from typing import Any
 
 import numpy as np
 
+from .core.arrays import Array
 from .core.record import Record, Verdict
 from .demo import DemoCorpus, poison
 from .guard import Guard
@@ -70,7 +71,7 @@ class ArmResult:
         }
 
 
-def _records(vectors: np.ndarray, rows: list[dict[str, Any]]) -> list[Record]:
+def _records(vectors: Array, rows: list[dict[str, Any]]) -> list[Record]:
     from datetime import datetime
 
     out = []

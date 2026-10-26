@@ -21,17 +21,19 @@ from __future__ import annotations
 
 import numpy as np
 
+from ..core.arrays import Array
+
 EMB_DTYPE = np.float32
 
 
 def score_records(
-    query_emb: np.ndarray,
-    query_labels: np.ndarray,
-    ref_emb: np.ndarray,
-    ref_labels: np.ndarray,
+    query_emb: Array,
+    query_labels: Array,
+    ref_emb: Array,
+    ref_labels: Array,
     k: int = 50,
     block_size: int = 500,
-) -> np.ndarray:
+) -> Array:
     """Fraction of each record's nearest reference neighbours sharing its label.
 
     Args:
@@ -82,11 +84,11 @@ def score_records(
 
 
 def max_similarity(
-    query_emb: np.ndarray,
-    ref_emb: np.ndarray,
+    query_emb: Array,
+    ref_emb: Array,
     exclude_self: bool = True,
     block_size: int = 500,
-) -> tuple[np.ndarray, np.ndarray]:
+) -> tuple[Array, Array]:
     """Highest cosine from each query to the reference, and which record it was.
 
     Args:

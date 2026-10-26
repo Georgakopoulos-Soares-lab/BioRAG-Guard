@@ -19,6 +19,7 @@ from typing import Any
 
 import numpy as np
 
+from ..core.arrays import Array
 from ..core.finding import Finding
 from ..core.manifest import Manifest
 from ..core.record import Record
@@ -55,21 +56,21 @@ class CorpusAdapter(ABC):
 
     @property
     @abstractmethod
-    def ids(self) -> np.ndarray:
+    def ids(self) -> Array:
         """(n,) record ids, in index order."""
 
     @property
-    def vectors(self) -> np.ndarray | None:
+    def vectors(self) -> Array | None:
         """(n, d) unit-norm embeddings in index order, or None."""
         return None
 
     @property
-    def labels(self) -> np.ndarray | None:
+    def labels(self) -> Array | None:
         """(n,) the label each record CLAIMS, or None."""
         return None
 
     @property
-    def donors(self) -> np.ndarray | None:
+    def donors(self) -> Array | None:
         """(n,) provenance group per record, or None."""
         return None
 
@@ -101,11 +102,11 @@ class CorpusAdapter(ABC):
 
     # -- model-backed operations ------------------------------------------
 
-    def embed(self, records: Sequence[Record]) -> np.ndarray:
+    def embed(self, records: Sequence[Record]) -> Array:
         """Embed records that arrive without a vector."""
         raise NotImplementedError(f"{self.name} cannot embed records")
 
-    def recompute(self, records: Sequence[Record]) -> np.ndarray | None:
+    def recompute(self, records: Sequence[Record]) -> Array | None:
         """Re-derive embeddings from raw counts, for the ``recompute`` layer.
 
         Returns None when the corpus cannot do it -- no model, or no counts.
@@ -116,7 +117,7 @@ class CorpusAdapter(ABC):
 
     # -- search -----------------------------------------------------------
 
-    def neighbors(self, vectors: np.ndarray, k: int) -> tuple[np.ndarray, np.ndarray]:
+    def neighbors(self, vectors: Array, k: int) -> tuple[Array, Array]:
         """Top-k neighbours of each query.
 
         Returns:
@@ -128,7 +129,7 @@ class CorpusAdapter(ABC):
             raise NotImplementedError(f"{self.name} exposes no vectors to search")
         return exact_neighbors(np.asarray(vectors), np.asarray(ref), k)
 
-    def probe_queries(self, n: int, seed: int = 0) -> np.ndarray:
+    def probe_queries(self, n: int, seed: int = 0) -> Array:
         """Queries used to measure what the corpus RETURNS.
 
         The default samples existing records, which is the right probe for
@@ -182,8 +183,8 @@ class CorpusAdapter(ABC):
 
 
 def exact_neighbors(
-    query: np.ndarray, ref: np.ndarray, k: int, block_size: int = 1024
-) -> tuple[np.ndarray, np.ndarray]:
+    query: Array, ref: Array, k: int, block_size: int = 1024
+) -> tuple[Array, Array]:
     """Blocked exact cosine search. Deterministic, and the fallback everywhere."""
     query = np.asarray(query, dtype=np.float32)
     ref = np.asarray(ref, dtype=np.float32)
@@ -205,7 +206,7 @@ def exact_neighbors(
     return idx_out, cos_out
 
 
-def normalise(vectors: np.ndarray) -> np.ndarray:
+def normalise(vectors: Array) -> Array:
     """Unit-norm rows, float32. A zero row stays zero rather than becoming NaN."""
     v = np.asarray(vectors, dtype=np.float32)
     if v.ndim == 1:

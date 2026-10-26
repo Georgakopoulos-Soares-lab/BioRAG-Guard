@@ -24,6 +24,7 @@ from typing import Any
 
 import numpy as np
 
+from .arrays import Array
 from .errors import BaselineMismatch
 from .registry import Direction
 
@@ -168,7 +169,7 @@ def _qkey(q: float) -> str:
 
 def fit_threshold(
     layer_name: str,
-    scores: np.ndarray,
+    scores: Array,
     direction: Direction,
     budget: float,
 ) -> LayerBaseline:

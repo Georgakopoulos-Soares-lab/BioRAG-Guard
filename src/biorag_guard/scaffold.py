@@ -14,6 +14,7 @@ from typing import Any
 import numpy as np
 
 from biorag_guard.adapters.base import CorpusAdapter, normalise
+from biorag_guard.core.arrays import Array
 from biorag_guard.core.finding import Finding
 
 
@@ -29,7 +30,7 @@ class {cls}(CorpusAdapter):
 
     def __init__(self) -> None:
         super().__init__()
-        self._vectors: np.ndarray | None = None
+        self._vectors: Array | None = None
 
     @classmethod
     def sniff(cls, path: Path) -> float:
@@ -42,19 +43,19 @@ class {cls}(CorpusAdapter):
         raise NotImplementedError("implement open()")
 
     @property
-    def ids(self) -> np.ndarray:
+    def ids(self) -> Array:
         raise NotImplementedError("implement ids")
 
     @property
-    def vectors(self) -> np.ndarray | None:
+    def vectors(self) -> Array | None:
         return self._vectors
 
     @property
-    def labels(self) -> np.ndarray | None:
+    def labels(self) -> Array | None:
         """The label each record CLAIMS, or None if the corpus has none."""
         return None
 
-    def recompute(self, records: Any) -> np.ndarray | None:
+    def recompute(self, records: Any) -> Array | None:
         """Re-derive embeddings from the raw inputs.
 
         Return None when the corpus cannot. The layer then reports itself as

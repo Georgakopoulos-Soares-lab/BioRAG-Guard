@@ -1,4 +1,4 @@
-"""The integration contract: the two jobs, the vote, and the 5-line snippet."""
+"""The integration contract: the two modes, the vote, and the API snippet."""
 
 from __future__ import annotations
 
@@ -84,7 +84,7 @@ def test_gating_context_manager_buffers_rejects(guard):
     assert len(safe.rejected) == 5
 
 
-# -- job separation ------------------------------------------------------------
+# -- mode separation ------------------------------------------------------------
 
 def test_check_refuses_a_batch_already_in_the_corpus(guard):
     """Scoring against a reference that holds the batch weakens the layer."""

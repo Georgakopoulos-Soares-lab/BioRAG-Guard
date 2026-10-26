@@ -28,9 +28,12 @@ jobs:
         run: mypy
       - name: tests
         run: pytest --cov=biorag_guard --cov-report=term-missing
+      # `timeout` is GNU coreutils and absent on the macOS runners, where the
+      # step failed with exit 127 before it ever ran the demo. The step budget
+      # does the same job on both platforms.
       - name: the demo must run on a clean checkout
-        run: |
-          timeout 60 bioguard demo
+        timeout-minutes: 2
+        run: bioguard demo
 
   no-heavy-deps:
     # `pip install biorag-guard` must work with no torch, no scanpy, no faiss

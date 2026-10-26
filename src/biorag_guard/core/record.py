@@ -14,7 +14,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
-import numpy as np
+from .arrays import Array
 
 
 class Access(str, Enum):
@@ -101,7 +101,7 @@ class Record:
     """
 
     id: str
-    vector: np.ndarray | None = None
+    vector: Array | None = None
     label: str | None = None
     text: str | None = None
     payload: str | None = None

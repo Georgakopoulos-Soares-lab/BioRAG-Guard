@@ -26,11 +26,13 @@ from typing import Any
 
 import numpy as np
 
+from ..core.arrays import Array
+
 CELL_TYPES = ("T cell", "B cell", "monocyte", "fibroblast")
 DIM = 16
 
 
-def _unit(v: np.ndarray) -> np.ndarray:
+def _unit(v: Array) -> Array:
     v = np.asarray(v, dtype=np.float32)
     if v.ndim == 1:
         v = v[None, :]
@@ -44,11 +46,11 @@ class DemoCorpus:
     """A generated corpus, in memory and on disk."""
 
     path: Path
-    vectors: np.ndarray
+    vectors: Array
     rows: list[dict[str, Any]]
 
     @property
-    def labels(self) -> np.ndarray:
+    def labels(self) -> Array:
         return np.array([r["label"] for r in self.rows], dtype=object)
 
 
@@ -89,7 +91,7 @@ def build(
     return DemoCorpus(path=path, vectors=vecs, rows=rows)
 
 
-def _write(path: Path, vectors: np.ndarray, rows: list[dict[str, Any]]) -> None:
+def _write(path: Path, vectors: Array, rows: list[dict[str, Any]]) -> None:
     np.save(path / "vectors.npy", vectors)
     with (path / "records.jsonl").open("w") as fh:
         for r in rows:
@@ -103,7 +105,7 @@ def poison(
     source: str = "T cell",
     target: str = "fibroblast",
     seed: int = 11,
-) -> tuple[np.ndarray, list[dict[str, Any]]]:
+) -> tuple[Array, list[dict[str, Any]]]:
     """Build a batch in the shape of one measured attack. Returns (vectors, rows).
 
     The batch is returned, never written into the corpus: these fixtures
@@ -156,7 +158,7 @@ def poison(
     return np.vstack(out_v).astype(np.float32), out_r
 
 
-def write_batch(path: str | Path, vectors: np.ndarray,
+def write_batch(path: str | Path, vectors: Array,
                 rows: list[dict[str, Any]]) -> Path:
     """Write a batch in the generic layout, for `bioguard check <dir>`."""
     path = Path(path)

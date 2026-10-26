@@ -1,4 +1,4 @@
-"""``bioguard`` -- three commands get a user from a corpus path to a report.
+"""``bioguard`` -- four commands get a user from a corpus path to a report.
 
 Exit codes are part of the contract, so the tool drops into CI unchanged:
 0 nothing above flag, 1 a quarantine, 2 a reject, 3 a run error.
@@ -18,6 +18,7 @@ import typer
 from .. import __version__
 from .. import demo as demo_mod
 from ..adapters import open_corpus, sniff_all
+from ..core.arrays import Array
 from ..core.config import GuardConfig, LayerConfig, default_layers_for, render_yaml
 from ..core.errors import BioGuardError
 from ..core.record import EXIT_RUN_ERROR, Record
@@ -27,8 +28,8 @@ from ..report import render_terminal, write_report
 
 app = typer.Typer(
     add_completion=False,
-    help="Poisoning defences for biological retrieval corpora. "
-         "Guard at ingest, guard on demand.",
+    help="Integrity checks for biological retrieval corpora. "
+         "Check at ingest, scan a stored corpus.",
     no_args_is_help=True,
 )
 
@@ -108,7 +109,7 @@ def check(
     quarantine: bool = typer.Option(True, help="write held-back records to a side-list"),
     json_out: bool = typer.Option(False, "--json", help="print the report as JSON"),
 ) -> None:
-    """Guard at ingest: decide on records arriving at the corpus."""
+    """Check at ingest: decide on records arriving at the corpus."""
     guard = _guard(corpus, config)
     records = load_records(batch)
     report = guard.check_many(records)
@@ -134,7 +135,7 @@ def scan(
     config: Path | None = typer.Option(None),
     json_out: bool = typer.Option(False, "--json"),
 ) -> None:
-    """Guard on demand: sweep the whole corpus."""
+    """Scan a stored corpus: sweep everything already in it."""
     guard = _guard(corpus, config)
     report = guard.scan(sample=sample if sample is not None else -1, since=since)
     if json_out:
@@ -284,7 +285,7 @@ def serve(
     token: str | None = typer.Option(None, help="require this value in X-Bioguard-Token"),
     config: Path | None = typer.Option(None),
 ) -> None:
-    """Serve the same two jobs over HTTP, for non-Python ingest pipelines."""
+    """Serve the same two modes over HTTP, for non-Python ingest pipelines."""
     import uvicorn
 
     from ..service import create_app
@@ -295,6 +296,20 @@ def serve(
               "this port can read your corpus layout and submit records for screening. "
               "Pass --token.")
     uvicorn.run(create_app(guard, token=token), host=host, port=port)
+
+
+@app.command("new-adapter")
+def new_adapter(
+    name: str = typer.Argument(..., help="corpus name, e.g. my-atlas"),
+    out: Path = typer.Option(Path("."), help="directory to write the stub and its test into"),
+) -> None:
+    """Scaffold an adapter for a new corpus, and the test it has to pass."""
+    from ..scaffold import scaffold_adapter
+
+    for path in scaffold_adapter(name, out):
+        _echo(f"wrote {path}")
+    _echo("\nImplement open()/ids, then build_fixture() in the test. "
+          "See docs/extending.md.")
 
 
 @app.command()
@@ -329,7 +344,7 @@ def demo(
               f"{cost['clean_accuracy_defended']:.3f}, abstentions "
               f"{cost['abstention_rate']:.1%}")
 
-    _echo("\n4/5  guarding at ingest, one batch per measured attack shape")
+    _echo("\n4/5  checking at ingest, one batch per measured attack shape")
     _echo(f"     {'attack':<14}{'admitted':>9}{'held':>7}   layers that fired")
     for kind in ("relabel", "duplicate", "interpolate", "flood", "hub"):
         vecs, rows = demo_mod.poison(corpus, kind, n=20)
@@ -342,7 +357,7 @@ def demo(
     _echo("     synthesised ones; `dedup` is the mirror image. Enable one family only and")
     _echo("     you have a hole.")
 
-    _echo("\n5/5  guarding on demand: relabelling records already in the corpus")
+    _echo("\n5/5  scanning a stored corpus: relabelling records already in it")
     changed = demo_mod.relabel_in_place(corpus, n=30)
     guard2 = Guard.auto(corpus_dir)
     diff = guard2.manifest_verify(base / "manifest.json")
@@ -357,7 +372,7 @@ def demo(
         _echo(f"\nCorpus left at {base}")
 
 
-def _records_from(vectors: np.ndarray, rows: list[dict[str, Any]]) -> list[Record]:
+def _records_from(vectors: Array, rows: list[dict[str, Any]]) -> list[Record]:
     out = []
     for i, r in enumerate(rows):
         counts = r.get("counts")

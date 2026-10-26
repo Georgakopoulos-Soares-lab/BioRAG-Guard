@@ -1,4 +1,4 @@
-# 1. Two jobs, split along the threat model
+# 1. Two modes, split along the threat model
 
 **Status:** accepted
 
@@ -19,7 +19,7 @@ consistency gives 0.149, the full stack 0.150, and the donor cap is
 
 ## Decision
 
-Two jobs, named after what they protect against rather than when they run:
+Two modes, named after what they protect against rather than when they run:
 
 * `bioguard check` serves the **insert** model. It runs record-local and
   corpus-relative layers, and refuses a batch that is already indexed,
@@ -36,5 +36,5 @@ Two jobs, named after what they protect against rather than when they run:
 * `manifest create` is milestone-zero work, ahead of any detector: over
   7.9M records a label hash costs 0.10 s and catches what nothing else
   does, while an index hash costs 1.37 s and catches nothing here.
-* The vote is a third surface rather than part of either job, because
+* The vote is a third surface rather than part of either mode, because
   `donor_cap`, `weight` and `abstain` have no ingest-time form.
